@@ -331,6 +331,91 @@ class ResultScreen extends StatelessWidget {
                   ),
                 ),
               ),
+              // CAMBIO: tarjeta NUEVA con el consejo según el rango de IMC.
+              // data.advice ya lo generaba BmiSampleData.calculate() según el
+              // rango (bajo peso, saludable, sobrepeso u obesidad), pero no se
+              // mostraba en ninguna pantalla. El icono usa statusColor, así que
+              // el color también cambia con el rango.
+              Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(20),
+                  child: Column(
+                    spacing: 8,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        spacing: 10,
+                        children: [
+                          Icon(
+                            Icons.lightbulb_outline_rounded,
+                            color: statusColor,
+                            size: 22,
+                          ),
+                          Text(
+                            'Consejo para ti',
+                            style: theme.textTheme.titleSmall?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: colorScheme.onSurface,
+                            ),
+                          ),
+                        ],
+                      ),
+                      Text(
+                        data.advice,
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          color: colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              // CAMBIO: tarjeta NUEVA con la grasa corporal estimada. El "if"
+              // dentro de la lista hace que SOLO aparezca si el registro la
+              // tiene: los del historial de ejemplo no, y no se muestra nada.
+              // El "!" es seguro porque el if ya comprobó que no es null.
+              if (data.bodyFatPercent != null)
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(20),
+                    child: Column(
+                      spacing: 8,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          spacing: 10,
+                          children: [
+                            Icon(
+                              Icons.percent_rounded,
+                              color: colorScheme.primary,
+                              size: 22,
+                            ),
+                            Text(
+                              'Grasa corporal estimada',
+                              style: theme.textTheme.titleSmall?.copyWith(
+                                fontWeight: FontWeight.bold,
+                                color: colorScheme.onSurface,
+                              ),
+                            ),
+                          ],
+                        ),
+                        Text(
+                          '${data.bodyFatPercent!.toStringAsFixed(1)} %',
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            color: colorScheme.primary,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        Text(
+                          'Estimación orientativa según tu IMC, edad y género.',
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
               ElevatedButton.icon(
                 onPressed: () {
                   Navigator.push(

@@ -55,10 +55,27 @@ class BmiSampleData {
   static BmiRecord calculate({
     required double weightKg,
     required double heightCm,
+    // CAMBIO: dos parámetros nuevos. La pantalla de inicio los envía desde
+    // los botones de género (isMale) y el contador de edad (age).
+    required bool isMale,
+    required int age,
   }) {
     final double heightM = heightCm / 100.0;
     final double rawBmi = weightKg / (heightM * heightM);
     final double bmiValue = double.parse(rawBmi.toStringAsFixed(1));
+
+    // CAMBIO: fórmula que SÍ depende del género (Deurenberg):
+    //   % grasa = 1.20 * IMC + 0.23 * edad - 10.8 * sexo - 5.4
+    // donde sexo vale 1 para hombre y 0 para mujer.
+    // OJO: el IMC (peso / altura^2) NO cambia con el género; es la misma
+    // fórmula para todos. Lo que cambia es esta estimación de grasa corporal,
+    // que además da uso a la edad, que antes no se utilizaba para nada.
+    final double sexFactor = isMale ? 1.0 : 0.0;
+    final double rawBodyFat =
+        1.20 * bmiValue + 0.23 * age - 10.8 * sexFactor - 5.4;
+    // clamp evita resultados absurdos (negativos o por encima de 100).
+    final double clampedBodyFat = rawBodyFat.clamp(0.0, 100.0);
+    final double bodyFatPercent = double.parse(clampedBodyFat.toStringAsFixed(1));
     final double minHealthyWeight = 18.5 * heightM * heightM;
     final double maxHealthyWeight = 24.9 * heightM * heightM;
     final String rangeStr =
@@ -91,6 +108,8 @@ class BmiSampleData {
       date: 'Hoy, cálculo reciente',
       advice: advice,
       healthyWeightRange: rangeStr,
+      // CAMBIO: el registro nuevo ya incluye la grasa corporal estimada.
+      bodyFatPercent: bodyFatPercent,
     );
   }
 }

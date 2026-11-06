@@ -19,6 +19,9 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   int _age = 26;
 
+  // CAMBIO: estado del género elegido. true = masculino, false = femenino.
+  bool _isMale = true;
+
   double _weightKg = 68.0;
 
   double _heightCm = 172.0;
@@ -49,10 +52,40 @@ class _HomePageState extends State<HomePage> {
     final record = BmiSampleData.calculate(
       weightKg: _weightKg,
       heightCm: _heightCm,
+      // CAMBIO: ahora también se envían el género y la edad, porque
+      // calculate() los necesita para estimar la grasa corporal.
+      isMale: _isMale,
+      age: _age,
     );
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => ResultScreen(record: record)),
+    );
+  }
+
+  // CAMBIO: método nuevo que dibuja UN botón de género.
+  // Si está seleccionado se ve relleno (ElevatedButton); si no, solo con
+  // borde (OutlinedButton). Los dos usan los estilos definidos en themes.dart,
+  // así que respetan el tema claro y el oscuro.
+  // Devuelve un Expanded para que los dos botones se repartan el ancho.
+  Widget _genderButton({
+    required String label,
+    required IconData icon,
+    required bool selected,
+    required VoidCallback onPressed,
+  }) {
+    return Expanded(
+      child: selected
+          ? ElevatedButton.icon(
+              onPressed: onPressed,
+              icon: Icon(icon),
+              label: Text(label),
+            )
+          : OutlinedButton.icon(
+              onPressed: onPressed,
+              icon: Icon(icon),
+              label: Text(label),
+            ),
     );
   }
 
@@ -95,6 +128,34 @@ class _HomePageState extends State<HomePage> {
             spacing: 20,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              // CAMBIO: fila NUEVA con los dos botones de género, colocada
+              // arriba del todo (antes del título). Al pulsar uno, setState
+              // cambia _isMale y se redibuja para marcar el seleccionado.
+              Row(
+                spacing: 12,
+                children: [
+                  _genderButton(
+                    label: 'Masculino',
+                    icon: Icons.male_rounded,
+                    selected: _isMale,
+                    onPressed: () {
+                      setState(() {
+                        _isMale = true;
+                      });
+                    },
+                  ),
+                  _genderButton(
+                    label: 'Femenino',
+                    icon: Icons.female_rounded,
+                    selected: !_isMale,
+                    onPressed: () {
+                      setState(() {
+                        _isMale = false;
+                      });
+                    },
+                  ),
+                ],
+              ),
               Column(
                 spacing: 6,
                 crossAxisAlignment: CrossAxisAlignment.start,
